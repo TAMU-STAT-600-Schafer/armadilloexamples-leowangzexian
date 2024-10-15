@@ -1,3 +1,4 @@
+install.packages("RcppArmadillo")
 # Add Rcpp and Rcpp Armadillo library
 library(Rcpp)
 library(RcppArmadillo)
