@@ -3,6 +3,14 @@ install.packages("RcppArmadillo")
 library(Rcpp)
 library(RcppArmadillo)
 
+library(Rcpp)
+library(RcppArmadillo)
+sourceCpp("ArmadilloExamples.cpp")
+X = matrix(rnorm(300), 30, 10)
+Y = matrix(rnorm(200), 10, 20)
+prodCpp = matrix_mult(X, Y)
+prodR = X%*%Y
+all.equal(prodCpp, prodR)
 
 
 # Source two versions of timesTwo function
