@@ -61,3 +61,70 @@ x = c(1, 3, 5)
 y = timesTwo_pointer(x)
 y
 x
+
+sparsePCAR = function(X, Vstart, lambda, tol) {
+  
+  # evaluate U for give Vstart, and X
+  U = procrustesR(X, Vstart)
+  
+  # save Vstart to V
+  V = Vstart
+  
+  # initial value of the objective function
+  old_obj = sum((X- tcrossprod(U, V))^2)/2 + lambda * sum(abs(V))
+  
+  # while loop for iteration
+  error = 100
+  while(error > tol) {
+    # update V with soft-thresholding of X'U
+    XtU = crossprod(X, U)
+    V = sign(XtU) * pmax(abs(XtU) - lambda, 0)
+    # update U via procrustees
+    U = procrustesR(X, V)
+    # objective function evaluation
+    new_obj = sum((X - tcrossprod(U, V))^2)/2 + lambda * sum(abs(V))
+    # update error
+    error = abs(new_obj - old_obj)
+    # save the new as the old
+    old_obj = new_obj
+  }
+  # return a list of U, V and error
+  return(list(U = U, V = V, error = error))
+}
+
+set.seed(308723)
+X <- matrix(rnorm(55), 11, 5)
+V <- matrix(rnorm(15), 5, 3)
+lambda = 1
+eps = 1e-2
+outR = sparsePCAR(X, V, lambda, eps)
+outR$V
+
+svd(X)$v
+
+library(Rcpp); library(RcppArmadillo)
+sourceCpp("ArmadilloExamples.cpp")
+set.seed(308723)
+X <- matrix(rnorm(55), 11, 5)
+V <- matrix(rnorm(15), 5, 3)
+lambda = 1
+eps = 1e-2
+out = sparsePCA(X, V, lambda, eps)
+out$V
+
+library(Rcpp)
+library(RcppArmadillo)
+sourceCpp("ArmadilloExamples.cpp")
+set.seed(308723)
+X <- matrix(rnorm(55), 11, 5)
+V <- matrix(rnorm(15), 5, 3)
+lambda = 1
+eps = 1e-2
+library(microbenchmark)
+microbenchmark(
+  sparsePCA(X, V, lambda, eps),
+  sparsePCAR(X, V, lambda, eps)
+)
+
+
+
